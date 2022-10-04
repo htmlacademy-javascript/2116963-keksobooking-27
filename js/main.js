@@ -11,7 +11,7 @@ function getRandomPositiveInt(min, max) {
     max = temp;
   }
   if ((!Number.isInteger(min) && !Number.isInteger(max)) && (max - min < 1)) {
-      return NaN;
+    return NaN;
   }
   min = Math.ceil(min);
   max = Math.floor(max);
