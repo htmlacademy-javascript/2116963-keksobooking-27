@@ -32,3 +32,6 @@ function getRandomPositiveFloat(min, max, digits) {
   }
   return (Math.random() * (max - min) + min).toFixed(digits);
 }
+
+getRandomPositiveInt(0, 0);
+getRandomPositiveFloat(0, 0, 0);
