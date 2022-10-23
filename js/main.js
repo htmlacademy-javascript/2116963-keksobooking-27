@@ -1,3 +1,6 @@
-import { getOffers } from './data.js';
+import { getPopups } from './popup.js';
 
-getOffers();
+const popups = getPopups;
+const mapCanvas = document.querySelector('#map-canvas');
+
+mapCanvas.append(popups[0]);
