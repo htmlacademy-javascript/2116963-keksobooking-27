@@ -140,8 +140,6 @@ const createPopup = (data) => {
   return popup;
 };
 
-
-const similarOffers = getOffers();
-const getPopups = Array.from(similarOffers, (item) => createPopup(item));
+const getPopups = () => Array.from(getOffers(), (item) => createPopup(item));
 
 export { getPopups };
