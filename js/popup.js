@@ -10,23 +10,16 @@ const popupTemplate = document.querySelector('#card')
   .content
   .querySelector('.popup');
 
-const createPopup = (advert) => {
-  const popup = popupTemplate.cloneNode(true);
-
-  const {
-    description = '',
-    photos = [],
-    features = [],
-    ...offer
-  } = advert.offer;
-
+const addDescription = (popup, description) => {
   const popupDescription = popup.querySelector('.popup__description');
   if (description !== '') {
     popupDescription.textContent = description;
   } else {
     popupDescription.remove();
   }
+};
 
+const addPhotos = (popup, photos) => {
   const popupPhotoContainer = popup.querySelector('.popup__photos');
   if (photos.length > 0) {
     const popupPhoto = popup.querySelector('.popup__photo');
@@ -35,11 +28,13 @@ const createPopup = (advert) => {
       photoItem.src = photo;
       popupPhotoContainer.appendChild(photoItem);
     });
-    popupPhotoContainer.querySelector(':nth-child(1)').remove();
+    popupPhoto.remove();
   } else {
     popupPhotoContainer.remove();
   }
+};
 
+const addFeatures = (popup, features) => {
   if (features.length > 0) {
     popup.querySelectorAll('.popup__feature')
       .forEach((popupFeature) => {
@@ -51,6 +46,16 @@ const createPopup = (advert) => {
   } else {
     popup.querySelector('.popup__features').remove();
   }
+};
+
+const createPopup = (advert) => {
+  const popup = popupTemplate.cloneNode(true);
+
+  const { description = '', photos = [], features = [], ...offer } = advert.offer;
+
+  addDescription(popup, description);
+  addPhotos(popup, photos);
+  addFeatures(popup, features);
 
   popup.querySelector('.popup__avatar').src = advert.author.avatar;
   popup.querySelector('.popup__title').textContent = offer.title;
