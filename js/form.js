@@ -1,26 +1,17 @@
 const adForm = document.querySelector('.ad-form');
-const mapFilters = document.querySelector('.map__filters');
 
-const turnUnactive = () => {
+const turnFormOff = () => {
   adForm.classList.add('ad-form--disabled');
-  for (const element of adForm.children) {
+  adForm.querySelectorAll('fieldset').forEach((element) => {
     element.disabled = true;
-  }
-  mapFilters.classList.add('map__filters--disabled');
-  for (const element of mapFilters.children) {
-    element.disabled = true;
-  }
+  });
 };
 
-const turnActive = () => {
+const turnFormOn = () => {
   adForm.classList.remove('ad-form--disabled');
-  for (const element of adForm.children) {
+  adForm.querySelectorAll('fieldset').forEach((element) => {
     element.disabled = false;
-  }
-  mapFilters.classList.remove('map__filters--disabled');
-  for (const element of mapFilters.children) {
-    element.disabled = false;
-  }
+  });
 };
 
-export { turnUnactive, turnActive };
+export { turnFormOn, turnFormOff };
