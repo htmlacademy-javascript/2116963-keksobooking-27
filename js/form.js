@@ -59,12 +59,7 @@ capacityField.addEventListener('change', onCapacityChange);
 
 adForm.addEventListener('submit', (evt) => {
   evt.preventDefault();
-  const isValid = pristine.validate();
-  if (isValid) {
-    console.log('form is valid');
-  } else {
-    console.log(pristine.getErrors());
-  }
+  pristine.validate();
 });
 
 export { turnFormOn, turnFormOff };
