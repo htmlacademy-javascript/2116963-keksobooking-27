@@ -1,7 +1,9 @@
 const adForm = document.querySelector('.ad-form');
-const addressField = adForm.querySelector('#address');
+const adFormElements = adForm.querySelectorAll('fieldset');
 const roomNumberField = adForm.querySelector('#room_number');
 const capacityField = adForm.querySelector('#capacity');
+const houseTypeField = adForm.querySelector('#type');
+const priceField = adForm.querySelector('#price');
 
 const roomsToCapacity = {
   1: ['1'],
@@ -10,16 +12,24 @@ const roomsToCapacity = {
   100: ['0'],
 };
 
+const houseTypeToPrice = {
+  palace: 10000,
+  flat: 1000,
+  house: 5000,
+  bungalow: 0,
+  hotel: 3000,
+};
+
 const turnFormOff = () => {
   adForm.classList.add('ad-form--disabled');
-  adForm.querySelectorAll('fieldset').forEach((element) => {
+  adFormElements.forEach((element) => {
     element.disabled = true;
   });
 };
 
 const turnFormOn = () => {
   adForm.classList.remove('ad-form--disabled');
-  adForm.querySelectorAll('fieldset').forEach((element) => {
+  adFormElements.forEach((element) => {
     element.disabled = false;
   });
 };
@@ -32,30 +42,32 @@ const pristine = new Pristine(adForm, {
 
 const validateCapacity = (value) => roomsToCapacity[roomNumberField.value].includes(value);
 
-const capacityErrorMessage = () => {
+const validatePrice = (value) => +value >= houseTypeToPrice[houseTypeField.value];
+
+const capacityOptionZero = adForm.querySelector('[name="capacity"]').querySelector('[value="0"]');
+
+const getCapacityErrorMessage = () => {
   if (roomNumberField.value === '100') {
-    return adForm.querySelector('[name="capacity"]').querySelector('[value="0"]').textContent;
+    return capacityOptionZero.textContent;
   }
   return `Количество гостей: ${roomsToCapacity[roomNumberField.value].join(', ')}`;
 };
 
-pristine.addValidator(capacityField, validateCapacity, capacityErrorMessage);
+pristine.addValidator(capacityField, validateCapacity, getCapacityErrorMessage);
 
-const onAddressFocus = () => {
-  addressField.blur();
-};
+pristine.addValidator(priceField, validatePrice, () => `Минимальная цена ${houseTypeToPrice[houseTypeField.value]}`);
 
 const onRoomNumberChange = () => {
   pristine.validate(capacityField);
 };
 
-const onCapacityChange = () => {
-  pristine.validate(capacityField);
+const onTypeChange = () => {
+  priceField.placeholder = houseTypeToPrice[houseTypeField.value];
+  pristine.validate(priceField);
 };
 
-addressField.addEventListener('focus', onAddressFocus);
 roomNumberField.addEventListener('change', onRoomNumberChange);
-capacityField.addEventListener('change', onCapacityChange);
+houseTypeField.addEventListener('change', onTypeChange);
 
 adForm.addEventListener('submit', (evt) => {
   evt.preventDefault();
