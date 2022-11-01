@@ -4,6 +4,8 @@ const roomNumberField = adForm.querySelector('#room_number');
 const capacityField = adForm.querySelector('#capacity');
 const houseTypeField = adForm.querySelector('#type');
 const priceField = adForm.querySelector('#price');
+const timeInField = adForm.querySelector('#timein');
+const timeOutField = adForm.querySelector('#timeout');
 
 const roomsToCapacity = {
   1: ['1'],
@@ -44,7 +46,7 @@ const validateCapacity = (value) => roomsToCapacity[roomNumberField.value].inclu
 
 const validatePrice = (value) => +value >= houseTypeToPrice[houseTypeField.value];
 
-const capacityOptionZero = adForm.querySelector('[name="capacity"]').querySelector('[value="0"]');
+const capacityOptionZero = capacityField.querySelector('[value="0"]');
 
 const getCapacityErrorMessage = () => {
   if (roomNumberField.value === '100') {
@@ -66,8 +68,18 @@ const onTypeChange = () => {
   pristine.validate(priceField);
 };
 
+const onTimeChange = (evt) => {
+  if (evt.target.name === 'timein') {
+    timeOutField.value = evt.target.value;
+  } else if (evt.target.name === 'timeout') {
+    timeInField.value = evt.target.value;
+  }
+};
+
 roomNumberField.addEventListener('change', onRoomNumberChange);
 houseTypeField.addEventListener('change', onTypeChange);
+
+adForm.addEventListener('change', onTimeChange);
 
 adForm.addEventListener('submit', (evt) => {
   evt.preventDefault();
