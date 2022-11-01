@@ -1,5 +1,5 @@
 const adForm = document.querySelector('.ad-form');
-const adFormElements = adForm.querySelectorAll('fieldset');
+const adFormFields = adForm.querySelectorAll('fieldset');
 const roomNumberField = adForm.querySelector('#room_number');
 const capacityField = adForm.querySelector('#capacity');
 const houseTypeField = adForm.querySelector('#type');
@@ -24,14 +24,14 @@ const houseTypeToPrice = {
 
 const turnFormOff = () => {
   adForm.classList.add('ad-form--disabled');
-  adFormElements.forEach((element) => {
+  adFormFields.forEach((element) => {
     element.disabled = true;
   });
 };
 
 const turnFormOn = () => {
   adForm.classList.remove('ad-form--disabled');
-  adFormElements.forEach((element) => {
+  adFormFields.forEach((element) => {
     element.disabled = false;
   });
 };
@@ -79,7 +79,7 @@ const onTimeChange = (evt) => {
 roomNumberField.addEventListener('change', onRoomNumberChange);
 houseTypeField.addEventListener('change', onTypeChange);
 
-adForm.addEventListener('change', onTimeChange);
+adForm.querySelector('.ad-form__element--time').addEventListener('change', onTimeChange);
 
 adForm.addEventListener('submit', (evt) => {
   evt.preventDefault();
