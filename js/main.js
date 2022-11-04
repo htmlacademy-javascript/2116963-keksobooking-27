@@ -1,12 +1,17 @@
-import { getOffers } from './data.js';
-import { createPopup } from './popup.js';
-import { addPopup } from './map.js';
-import { turnFormOn } from './form.js';
-import { turnFiltersOn } from './map-filters.js';
+import { getAdverts } from './data.js';
+import { turnFormOn, turnFormOff } from './form.js';
+import { turnFiltersOn, turnFiltersOff } from './map-filters.js';
+import { initMap, onMapLoad, setAdMarkers } from './map.js';
 
-const popups = Array.from(getOffers(), (item) => createPopup(item));
+const MARKERS_COUNT = 10;
+const TOKIO_CENTER = [35.69710146763371, 139.7694347667951];
 
-addPopup(popups[0]);
+turnFormOff();
+turnFiltersOff();
 
-turnFormOn();
-turnFiltersOn();
+onMapLoad(() => {
+  turnFormOn();
+  turnFiltersOn();
+  setAdMarkers(getAdverts(10), MARKERS_COUNT);
+});
+initMap(TOKIO_CENTER);

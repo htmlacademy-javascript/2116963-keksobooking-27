@@ -1,6 +1,5 @@
 import { getRandomPositiveInteger, getRandomPositiveFloat, getRandomArrayItem, getRandomElements } from './util.js';
 
-const OFFERS_COUNT = 10;
 const Location = {
   MIN_LATITUDE: 35.65,
   MAX_LATITUDE: 35.7,
@@ -54,7 +53,7 @@ const getRandomLocation = () => ({
   longitude: getRandomPositiveFloat(Location.MIN_LONGITUDE, Location.MAX_LONGITUDE, 5),
 });
 
-const createOffer = (id, location) => ({
+const createAdvert = (id, location) => ({
   author: {
     avatar: `img/avatars/user${id < 10 ? `0${id}` : id}.png`,
   },
@@ -77,6 +76,6 @@ const createOffer = (id, location) => ({
   }
 });
 
-const getOffers = () => Array.from({ length: OFFERS_COUNT }, (_, index) => createOffer(index + 1, getRandomLocation()));
+const getAdverts = (count) => Array.from({ length: count }, (_, index) => createAdvert(index + 1, getRandomLocation()));
 
-export { getOffers };
+export { getAdverts };
