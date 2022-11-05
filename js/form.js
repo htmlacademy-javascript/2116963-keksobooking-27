@@ -6,6 +6,7 @@ const houseTypeField = adForm.querySelector('#type');
 const priceField = adForm.querySelector('#price');
 const timeInField = adForm.querySelector('#timein');
 const timeOutField = adForm.querySelector('#timeout');
+const address = adForm.querySelector('#address');
 
 const roomsToCapacity = {
   1: ['1'],
@@ -34,6 +35,10 @@ const turnFormOn = () => {
   adFormFields.forEach((element) => {
     element.disabled = false;
   });
+};
+
+const setAddress = (location) => {
+  address.value = `${location.lat.toFixed(5)}, ${location.lng.toFixed(5)}`;
 };
 
 const pristine = new Pristine(adForm, {
@@ -86,4 +91,4 @@ adForm.addEventListener('submit', (evt) => {
   pristine.validate();
 });
 
-export { turnFormOn, turnFormOff };
+export { turnFormOn, turnFormOff, setAddress };

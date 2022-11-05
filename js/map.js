@@ -1,5 +1,3 @@
-import { createPopup } from './popup.js';
-
 const map = L.map('map-canvas');
 const markerGroup = L.layerGroup().addTo(map);
 
@@ -26,7 +24,7 @@ const mainMarker = L.marker(
   }
 );
 
-const setAdMarkers = (adverts, quantity) => {
+const setAdMarkers = (adverts, quantity, popup) => {
   markerGroup.clearLayers();
   adverts.slice(0, quantity).forEach((advert) => {
     const marker = L.marker(
@@ -39,7 +37,7 @@ const setAdMarkers = (adverts, quantity) => {
       }
     );
 
-    marker.addTo(markerGroup).bindPopup(createPopup(advert));
+    marker.addTo(markerGroup).bindPopup(popup(advert));
   });
 };
 
@@ -58,4 +56,8 @@ const onMapLoad = (callback) => {
   map.on('load', callback);
 };
 
-export { initMap, onMapLoad, setAdMarkers };
+const onMainMarkerMove = (callback) => {
+  mainMarker.on('move',(evt) => callback(evt.target.getLatLng()));
+};
+
+export { initMap, onMapLoad, setAdMarkers, onMainMarkerMove };
