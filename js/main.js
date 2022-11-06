@@ -2,7 +2,7 @@ import { getAdverts } from './data.js';
 import { createPopup } from './popup.js';
 import { turnFormOn, turnFormOff, setAddress } from './form.js';
 import { turnFiltersOn, turnFiltersOff } from './map-filters.js';
-import { initMap, onMapLoad, setAdMarkers, onMainMarkerMove } from './map.js';
+import { initMap, setOnMapLoad, setAdMarkers, setOnMainMarkerMove } from './map.js';
 
 const MARKERS_COUNT = 10;
 const MAP_CENTER = {
@@ -13,9 +13,9 @@ const MAP_CENTER = {
 turnFormOff();
 turnFiltersOff();
 
-onMapLoad(() => {
+setOnMapLoad(() => {
   setAdMarkers(getAdverts(10), MARKERS_COUNT, createPopup);
-  onMainMarkerMove(setAddress);
+  setOnMainMarkerMove(setAddress);
   setAddress(MAP_CENTER);
   turnFormOn();
   turnFiltersOn();

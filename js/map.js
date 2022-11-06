@@ -24,7 +24,7 @@ const mainMarker = L.marker(
   }
 );
 
-const setAdMarkers = (adverts, quantity, popup) => {
+const setAdMarkers = (adverts, quantity, createPopup) => {
   markerGroup.clearLayers();
   adverts.slice(0, quantity).forEach((advert) => {
     const marker = L.marker(
@@ -37,7 +37,7 @@ const setAdMarkers = (adverts, quantity, popup) => {
       }
     );
 
-    marker.addTo(markerGroup).bindPopup(popup(advert));
+    marker.addTo(markerGroup).bindPopup(createPopup(advert));
   });
 };
 
@@ -52,12 +52,12 @@ const initMap = (location) => {
   mainMarker.setLatLng(location).addTo(map);
 };
 
-const onMapLoad = (callback) => {
+const setOnMapLoad = (callback) => {
   map.on('load', callback);
 };
 
-const onMainMarkerMove = (callback) => {
+const setOnMainMarkerMove = (callback) => {
   mainMarker.on('move',(evt) => callback(evt.target.getLatLng()));
 };
 
-export { initMap, onMapLoad, setAdMarkers, onMainMarkerMove };
+export { initMap, setOnMapLoad, setAdMarkers, setOnMainMarkerMove };
