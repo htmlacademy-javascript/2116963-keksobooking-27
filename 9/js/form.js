@@ -1,14 +1,14 @@
-const adForm = document.querySelector('.ad-form');
-const adFormFields = adForm.querySelectorAll('fieldset');
-const roomNumberField = adForm.querySelector('#room_number');
-const capacityField = adForm.querySelector('#capacity');
-const houseTypeField = adForm.querySelector('#type');
-const priceField = adForm.querySelector('#price');
-const timeInField = adForm.querySelector('#timein');
-const timeOutField = adForm.querySelector('#timeout');
-const address = adForm.querySelector('#address');
+const advertForm = document.querySelector('.ad-form');
+const advertFormFields = advertForm.querySelectorAll('fieldset');
+const roomNumberField = advertForm.querySelector('#room_number');
+const capacityField = advertForm.querySelector('#capacity');
+const houseTypeField = advertForm.querySelector('#type');
+const priceField = advertForm.querySelector('#price');
+const timeInField = advertForm.querySelector('#timein');
+const timeOutField = advertForm.querySelector('#timeout');
+const address = advertForm.querySelector('#address');
 
-const priceSlider = adForm.querySelector('.ad-form__slider');
+const priceSlider = advertForm.querySelector('.ad-form__slider');
 
 const roomsToCapacity = {
   1: ['1'],
@@ -26,24 +26,26 @@ const houseTypeToPrice = {
 };
 
 const turnFormOff = () => {
-  adForm.classList.add('ad-form--disabled');
-  adFormFields.forEach((element) => {
+  advertForm.classList.add('ad-form--disabled');
+  advertFormFields.forEach((element) => {
     element.disabled = true;
   });
+  priceSlider.setAttribute('disabled', true);
 };
 
 const turnFormOn = () => {
-  adForm.classList.remove('ad-form--disabled');
-  adFormFields.forEach((element) => {
+  advertForm.classList.remove('ad-form--disabled');
+  advertFormFields.forEach((element) => {
     element.disabled = false;
   });
+  priceSlider.removeAttribute('disabled');
 };
 
 const setAddress = (location) => {
   address.value = `${location.lat.toFixed(5)}, ${location.lng.toFixed(5)}`;
 };
 
-const pristine = new Pristine(adForm, {
+const pristine = new Pristine(advertForm, {
   classTo: 'ad-form__element',
   errorClass: 'ad-form__element--invalid',
   errorTextParent: 'ad-form__element',
@@ -58,17 +60,27 @@ noUiSlider.create(priceSlider, {
   step: 1,
   connect: 'lower',
   format: {
-    to: (value) => value.toFixed(0),
-    from: (value) => parseFloat(value),
+    to(value) {
+      return value.toFixed(0);
+    },
+    from(value) {
+      return parseFloat(value);
+    }
   },
 });
+priceField.value = '';
 
-const updateSlider = () => {
+const updateSliderRange = () => {
   priceSlider.noUiSlider.updateOptions({
     range: {
       min: houseTypeToPrice[houseTypeField.value],
       max: +priceField.max,
     },
+  });
+};
+
+const updateSliderStart = () => {
+  priceSlider.noUiSlider.updateOptions({
     start: priceField.value,
   });
 };
@@ -97,18 +109,17 @@ const onRoomNumberChange = () => {
 const onTypeChange = () => {
   priceField.placeholder = houseTypeToPrice[houseTypeField.value];
   pristine.validate(priceField);
-  updateSlider();
+  updateSliderRange();
+  updateSliderStart();
 };
 
-const onSliderUpdate = () => {
+const onSliderSlide = () => {
   priceField.value = priceSlider.noUiSlider.get();
   pristine.validate(priceField);
 };
 
-const onPriceChange = (evt) => {
-  if (evt.target.value >= houseTypeToPrice[houseTypeField.value] && evt.target.value <= +priceField.max) {
-    updateSlider();
-  }
+const onPriceInput = () => {
+  updateSliderStart();
 };
 
 const onTimeChange = (evt) => {
@@ -122,14 +133,37 @@ const onTimeChange = (evt) => {
 roomNumberField.addEventListener('change', onRoomNumberChange);
 houseTypeField.addEventListener('change', onTypeChange);
 
-priceSlider.noUiSlider.on('update', onSliderUpdate);
-priceField.addEventListener('input', onPriceChange);
+priceSlider.noUiSlider.on('slide', onSliderSlide);
+priceField.addEventListener('input', onPriceInput);
 
-adForm.querySelector('.ad-form__element--time').addEventListener('change', onTimeChange);
+advertForm.querySelector('.ad-form__element--time').addEventListener('change', onTimeChange);
 
-adForm.addEventListener('submit', (evt) => {
+advertForm.addEventListener('submit', (evt) => {
   evt.preventDefault();
   pristine.validate();
 });
 
-export { turnFormOn, turnFormOff, setAddress };
+
+const inputItems = advertForm.querySelectorAll('input, textarea');
+const selectionItems = advertForm.querySelectorAll('select');
+
+const setOnFormReset = (callback) => {
+  advertForm.addEventListener('reset', (evt) => {
+    evt.preventDefault();
+    inputItems.forEach((item) => {
+      if(item.type === 'checkbox') {
+        item.checked = false;
+      } else {
+        item.value = '';
+      }
+    });
+    selectionItems.forEach((item) => {
+      item.value = item.querySelector('[selected]').value;
+    });
+    priceField.placeholder = houseTypeToPrice[houseTypeField.value];
+    pristine.reset();
+    callback();
+  });
+};
+
+export { turnFormOn, turnFormOff, setAddress, setOnFormReset };
