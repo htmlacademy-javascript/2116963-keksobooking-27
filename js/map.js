@@ -1,17 +1,19 @@
-const map = L.map('map-canvas');
-const markerGroup = L.layerGroup().addTo(map);
+const VIEW_ZOOM = 12;
 
-const mainPinIcon = L.icon({
+const MAIN_PIN_ICON = L.icon({
   iconUrl: '../img/main-pin.svg',
-  iconSize: [40, 40],
-  iconAnchor: [20, 40],
+  iconSize: [52, 52],
+  iconAnchor: [26, 52],
 });
 
-const adPinIcon = L.icon({
+const ADVERT_PIN_ICON = L.icon({
   iconUrl: '../img/pin.svg',
   iconSize: [40, 40],
   iconAnchor: [20, 40],
 });
+
+const map = L.map('map-canvas');
+const markerGroup = L.layerGroup().addTo(map);
 
 const mainMarker = L.marker(
   {
@@ -19,30 +21,32 @@ const mainMarker = L.marker(
     lng: 0,
   },
   {
-    icon: mainPinIcon,
+    icon: MAIN_PIN_ICON,
     draggable: true,
   }
 );
 
-const setAdMarkers = (adverts, quantity, createPopup) => {
+const setAdvertMarkers = (adverts, checkFilters, createPopup) => {
   markerGroup.clearLayers();
-  adverts.slice(0, quantity).forEach((advert) => {
-    const marker = L.marker(
-      {
-        lat: advert.location.lat,
-        lng: advert.location.lng,
-      },
-      {
-        icon: adPinIcon,
-      }
-    );
+  adverts.forEach((advert) => {
+    if (checkFilters(advert)) {
+      const marker = L.marker(
+        {
+          lat: advert.location.lat,
+          lng: advert.location.lng,
+        },
+        {
+          icon: ADVERT_PIN_ICON,
+        }
+      );
 
-    marker.addTo(markerGroup).bindPopup(createPopup(advert));
+      marker.addTo(markerGroup).bindPopup(createPopup(advert));
+    }
   });
 };
 
 const initMap = (location) => {
-  map.setView(location, 12);
+  map.setView(location, VIEW_ZOOM);
 
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
@@ -57,7 +61,12 @@ const setOnMapLoad = (callback) => {
 };
 
 const setOnMainMarkerMove = (callback) => {
-  mainMarker.on('move',(evt) => callback(evt.target.getLatLng()));
+  mainMarker.on('move', (evt) => callback(evt.target.getLatLng()));
 };
 
-export { initMap, setOnMapLoad, setAdMarkers, setOnMainMarkerMove };
+const resetMap = (location) => {
+  map.setView(location, VIEW_ZOOM);
+  mainMarker.setLatLng(location).addTo(map);
+};
+
+export { initMap, setOnMapLoad, setAdvertMarkers, setOnMainMarkerMove, resetMap };

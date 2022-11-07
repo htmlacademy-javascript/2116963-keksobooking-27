@@ -7,8 +7,8 @@ const Location = {
   MAX_LONGITUDE: 139.8,
 };
 const RandomInteger = {
-  MIN: 1,
-  MAX: 1000000,
+  MIN: 0,
+  MAX: 100000,
 };
 const TYPES = [
   'palace',
