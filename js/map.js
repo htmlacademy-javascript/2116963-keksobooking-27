@@ -1,4 +1,5 @@
 const VIEW_ZOOM = 12;
+const MARKERS_COUNT = 10;
 
 const MAIN_PIN_ICON = L.icon({
   iconUrl: '../img/main-pin.svg',
@@ -28,7 +29,8 @@ const mainMarker = L.marker(
 
 const setAdvertMarkers = (adverts, checkFilters, createPopup) => {
   markerGroup.clearLayers();
-  adverts.forEach((advert) => {
+  let count = 1;
+  for (const advert of adverts) {
     if (checkFilters(advert)) {
       const marker = L.marker(
         {
@@ -41,8 +43,13 @@ const setAdvertMarkers = (adverts, checkFilters, createPopup) => {
       );
 
       marker.addTo(markerGroup).bindPopup(createPopup(advert));
+
+      if (count === MARKERS_COUNT) {
+        break;
+      }
+      count++;
     }
-  });
+  }
 };
 
 const initMap = (location) => {
@@ -57,7 +64,7 @@ const initMap = (location) => {
 };
 
 const setOnMapLoad = (callback) => {
-  map.on('load', callback);
+  map.on('load', () => callback());
 };
 
 const setOnMainMarkerMove = (callback) => {

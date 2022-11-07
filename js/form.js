@@ -30,6 +30,7 @@ const turnFormOff = () => {
   advertFormFields.forEach((element) => {
     element.disabled = true;
   });
+  priceSlider.setAttribute('disabled', true);
 };
 
 const turnFormOn = () => {
@@ -37,6 +38,7 @@ const turnFormOn = () => {
   advertFormFields.forEach((element) => {
     element.disabled = false;
   });
+  priceSlider.removeAttribute('disabled');
 };
 
 const setAddress = (location) => {
