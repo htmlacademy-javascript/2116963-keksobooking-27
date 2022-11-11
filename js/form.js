@@ -189,6 +189,12 @@ function onErrorWindowKeydown(evt) {
   }
 }
 
+const catchFormError = () => {
+  document.body.appendChild(errorMessage);
+  window.addEventListener('click', onErrorWindowClick);
+  window.addEventListener('keydown', onErrorWindowKeydown);
+};
+
 const setOnFormSubmit = (callback) => {
   advertForm.addEventListener('submit', (evt) => {
     evt.preventDefault();
@@ -196,22 +202,24 @@ const setOnFormSubmit = (callback) => {
     if (isValid) {
       submitButton.disabled = true;
       const formData = new FormData(evt.target);
-      fetch('https:/7.javascript.pages.academy/keksobooking',
+      fetch('https://27.javascript.pages.academy/keksobooking',
         {
           method: 'POST',
           body: formData
         })
-        .then(() => {
-          document.body.appendChild(successMessage);
-          window.addEventListener('click', onSuccessWindowClick);
-          window.addEventListener('keydown', onSuccessWindowKeydown);
-          resetForm();
-          callback();
+        .then((response) => {
+          if (response.ok) {
+            document.body.appendChild(successMessage);
+            window.addEventListener('click', onSuccessWindowClick);
+            window.addEventListener('keydown', onSuccessWindowKeydown);
+            resetForm();
+            callback();
+          } else {
+            catchFormError();
+          }
         })
         .catch(() => {
-          document.body.appendChild(errorMessage);
-          window.addEventListener('click', onErrorWindowClick);
-          window.addEventListener('keydown', onErrorWindowKeydown);
+          catchFormError();
         })
         .finally(() => {
           submitButton.disabled = false;
@@ -228,4 +236,4 @@ const setOnFormReset = (callback) => {
   });
 };
 
-export { turnFormOn, turnFormOff, setAddress, setOnFormReset, setOnFormSubmit };
+export { turnFormOn, turnFormOff, setAddress, setOnFormReset, setOnFormSubmit, catchFormError };

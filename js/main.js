@@ -1,4 +1,3 @@
-import { getAdverts } from './data.js';
 import { createPopup } from './popup.js';
 import { turnFormOn, turnFormOff, setAddress, setOnFormReset, setOnFormSubmit } from './form.js';
 import { turnFiltersOn, turnFiltersOff, checkFilters, setOnFiltersChange, resetFilters } from './map-filters.js';
@@ -9,17 +8,41 @@ const MAP_CENTER = {
   lng: 139.7694347667951,
 };
 
-const adverts = getAdverts(50);
+const loadingErrorMessage = document.querySelector('#loading-error').content.querySelector('.error');
 
-turnFormOff();
-turnFiltersOff();
+const onLoadingErrorWindowClick = () => {
+  document.body.removeChild(loadingErrorMessage);
+  window.removeEventListener('click', onLoadingErrorWindowClick);
+  window.removeEventListener('keydown', onLoadingErrorWindowKeydown);
+};
 
-setOnMapLoad(() => {
-  setAdvertMarkers(adverts, checkFilters, createPopup);
-  setOnMainMarkerMove(setAddress);
-  setAddress(MAP_CENTER);
-  turnFormOn();
+function onLoadingErrorWindowKeydown(evt) {
+  if (evt.key === 'Escape') {
+    document.body.removeChild(loadingErrorMessage);
+    window.removeEventListener('click', onLoadingErrorWindowClick);
+    window.removeEventListener('keydown', onLoadingErrorWindowKeydown);
+  }
+}
+
+const catchLoadingError = () => {
+  document.body.appendChild(loadingErrorMessage);
+  window.addEventListener('click', onLoadingErrorWindowClick);
+  window.addEventListener('keydown', onLoadingErrorWindowKeydown);
+};
+
+const getData = (onSuccess, onFail) => {
+  fetch('https://27.javascript.pages.academy/keksobooking/data')
+    .then((response) => response.json())
+    .then((adverts) => onSuccess(adverts))
+    .catch(() => {
+      catchLoadingError();
+      onFail();
+    });
+};
+
+const setFormOnSuccess = (adverts) => {
   turnFiltersOn();
+  setAdvertMarkers(adverts, checkFilters, createPopup);
   setOnFormSubmit(() => {
     resetMap(MAP_CENTER);
     resetFilters();
@@ -31,5 +54,29 @@ setOnMapLoad(() => {
     setAdvertMarkers(adverts, checkFilters, createPopup);
   });
   setOnFiltersChange(() => setAdvertMarkers(adverts, checkFilters, createPopup));
+};
+
+const setFormOnFail = () => {
+  setOnFormSubmit(() => {
+    resetMap(MAP_CENTER);
+    resetFilters();
+  });
+  setOnFormReset(() => {
+    resetMap(MAP_CENTER);
+    resetFilters();
+  });
+};
+
+turnFormOff();
+turnFiltersOff();
+
+setOnMapLoad(() => {
+  turnFormOn();
+  setAddress(MAP_CENTER);
+  setOnMainMarkerMove(setAddress);
+  getData(
+    setFormOnSuccess,
+    setFormOnFail
+  );
 });
 initMap(MAP_CENTER);
