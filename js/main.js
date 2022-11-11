@@ -1,6 +1,6 @@
 import { getAdverts } from './data.js';
 import { createPopup } from './popup.js';
-import { turnFormOn, turnFormOff, setAddress, setOnFormReset } from './form.js';
+import { turnFormOn, turnFormOff, setAddress, setOnFormReset, setOnFormSubmit } from './form.js';
 import { turnFiltersOn, turnFiltersOff, checkFilters, setOnFiltersChange, resetFilters } from './map-filters.js';
 import { initMap, setOnMapLoad, setAdvertMarkers, setOnMainMarkerMove, resetMap } from './map.js';
 
@@ -20,6 +20,11 @@ setOnMapLoad(() => {
   setAddress(MAP_CENTER);
   turnFormOn();
   turnFiltersOn();
+  setOnFormSubmit(() => {
+    resetMap(MAP_CENTER);
+    resetFilters();
+    setAdvertMarkers(adverts, checkFilters, createPopup);
+  });
   setOnFormReset(() => {
     resetMap(MAP_CENTER);
     resetFilters();

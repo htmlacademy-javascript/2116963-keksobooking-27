@@ -138,32 +138,94 @@ priceField.addEventListener('input', onPriceInput);
 
 advertForm.querySelector('.ad-form__element--time').addEventListener('change', onTimeChange);
 
-advertForm.addEventListener('submit', (evt) => {
-  evt.preventDefault();
-  pristine.validate();
-});
-
-
 const inputItems = advertForm.querySelectorAll('input, textarea');
 const selectionItems = advertForm.querySelectorAll('select');
+
+const resetForm = () => {
+  inputItems.forEach((item) => {
+    if (item.type === 'checkbox') {
+      item.checked = false;
+    } else {
+      item.value = '';
+    }
+  });
+  selectionItems.forEach((item) => {
+    item.value = item.querySelector('[selected]').value;
+  });
+  priceField.placeholder = houseTypeToPrice[houseTypeField.value];
+  pristine.reset();
+};
+
+
+const submitButton = advertForm.querySelector('.ad-form__submit');
+const successMessage = document.querySelector('#success').content.querySelector('.success');
+const errorMessage = document.querySelector('#error').content.querySelector('.error');
+
+const onSuccessWindowClick = () => {
+  document.body.removeChild(successMessage);
+  window.removeEventListener('click', onSuccessWindowClick);
+  window.removeEventListener('keydown', onSuccessWindowKeydown);
+};
+
+function onSuccessWindowKeydown(evt) {
+  if (evt.key === 'Escape') {
+    document.body.removeChild(successMessage);
+    window.removeEventListener('click', onSuccessWindowClick);
+    window.removeEventListener('keydown', onSuccessWindowKeydown);
+  }
+}
+
+const onErrorWindowClick = () => {
+  document.body.removeChild(errorMessage);
+  window.removeEventListener('click', onErrorWindowClick);
+  window.removeEventListener('keydown', onErrorWindowKeydown);
+};
+
+function onErrorWindowKeydown(evt) {
+  if (evt.key === 'Escape') {
+    document.body.removeChild(errorMessage);
+    window.removeEventListener('click', onErrorWindowClick);
+    window.removeEventListener('keydown', onErrorWindowKeydown);
+  }
+}
+
+const setOnFormSubmit = (callback) => {
+  advertForm.addEventListener('submit', (evt) => {
+    evt.preventDefault();
+    const isValid = pristine.validate();
+    if (isValid) {
+      submitButton.disabled = true;
+      const formData = new FormData(evt.target);
+      fetch('https:/7.javascript.pages.academy/keksobooking',
+        {
+          method: 'POST',
+          body: formData
+        })
+        .then(() => {
+          document.body.appendChild(successMessage);
+          window.addEventListener('click', onSuccessWindowClick);
+          window.addEventListener('keydown', onSuccessWindowKeydown);
+          resetForm();
+          callback();
+        })
+        .catch(() => {
+          document.body.appendChild(errorMessage);
+          window.addEventListener('click', onErrorWindowClick);
+          window.addEventListener('keydown', onErrorWindowKeydown);
+        })
+        .finally(() => {
+          submitButton.disabled = false;
+        });
+    }
+  });
+};
 
 const setOnFormReset = (callback) => {
   advertForm.addEventListener('reset', (evt) => {
     evt.preventDefault();
-    inputItems.forEach((item) => {
-      if(item.type === 'checkbox') {
-        item.checked = false;
-      } else {
-        item.value = '';
-      }
-    });
-    selectionItems.forEach((item) => {
-      item.value = item.querySelector('[selected]').value;
-    });
-    priceField.placeholder = houseTypeToPrice[houseTypeField.value];
-    pristine.reset();
+    resetForm();
     callback();
   });
 };
 
-export { turnFormOn, turnFormOff, setAddress, setOnFormReset };
+export { turnFormOn, turnFormOff, setAddress, setOnFormReset, setOnFormSubmit };
