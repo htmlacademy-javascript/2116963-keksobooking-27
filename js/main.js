@@ -1,70 +1,54 @@
 import { createPopup } from './popup.js';
-import { turnFormOn, turnFormOff, setAddress, setOnFormReset, setOnFormSubmit } from './form.js';
+import { turnFormOn, turnFormOff, setAddress, setOnFormReset, setOnFormSubmit, setResultMessage } from './form.js';
 import { turnFiltersOn, turnFiltersOff, checkFilters, setOnFiltersChange, resetFilters } from './map-filters.js';
 import { initMap, setOnMapLoad, setAdvertMarkers, setOnMainMarkerMove, resetMap } from './map.js';
+import { debounce } from './utils.js';
 
 const MAP_CENTER = {
   lat: 35.69710146763371,
   lng: 139.7694347667951,
 };
 
+const RERENDER_DELAY = 500;
+
+const GET_URL = 'https://27.javascript.pages.academy/keksobooking/data';
+
 const loadingErrorMessage = document.querySelector('#loading-error').content.querySelector('.error');
 
-const onLoadingErrorWindowClick = () => {
-  document.body.removeChild(loadingErrorMessage);
-  window.removeEventListener('click', onLoadingErrorWindowClick);
-  window.removeEventListener('keydown', onLoadingErrorWindowKeydown);
-};
-
-function onLoadingErrorWindowKeydown(evt) {
-  if (evt.key === 'Escape') {
-    document.body.removeChild(loadingErrorMessage);
-    window.removeEventListener('click', onLoadingErrorWindowClick);
-    window.removeEventListener('keydown', onLoadingErrorWindowKeydown);
-  }
-}
-
-const catchLoadingError = () => {
-  document.body.appendChild(loadingErrorMessage);
-  window.addEventListener('click', onLoadingErrorWindowClick);
-  window.addEventListener('keydown', onLoadingErrorWindowKeydown);
-};
-
 const getData = (onSuccess, onFail) => {
-  fetch('https://27.javascript.pages.academy/keksobooking/data')
+  fetch(GET_URL)
     .then((response) => response.json())
-    .then((adverts) => onSuccess(adverts))
+    .then(onSuccess)
     .catch(() => {
-      catchLoadingError();
+      setResultMessage(loadingErrorMessage);
       onFail();
     });
+};
+
+const debounceAdvertMarkers = (adverts) => debounce(() => setAdvertMarkers(adverts, checkFilters, createPopup), RERENDER_DELAY);
+
+const resetOnSuccess = (adverts) => {
+  resetMap(MAP_CENTER);
+  resetFilters();
+  setAdvertMarkers(adverts, checkFilters, createPopup);
+};
+
+const resetOnFail = () => {
+  resetMap(MAP_CENTER);
+  resetFilters();
 };
 
 const setFormOnSuccess = (adverts) => {
   turnFiltersOn();
   setAdvertMarkers(adverts, checkFilters, createPopup);
-  setOnFormSubmit(() => {
-    resetMap(MAP_CENTER);
-    resetFilters();
-    setAdvertMarkers(adverts, checkFilters, createPopup);
-  });
-  setOnFormReset(() => {
-    resetMap(MAP_CENTER);
-    resetFilters();
-    setAdvertMarkers(adverts, checkFilters, createPopup);
-  });
-  setOnFiltersChange(() => setAdvertMarkers(adverts, checkFilters, createPopup));
+  setOnFormSubmit(() => resetOnSuccess(adverts));
+  setOnFormReset(() => resetOnSuccess(adverts));
+  setOnFiltersChange(debounceAdvertMarkers(adverts));
 };
 
 const setFormOnFail = () => {
-  setOnFormSubmit(() => {
-    resetMap(MAP_CENTER);
-    resetFilters();
-  });
-  setOnFormReset(() => {
-    resetMap(MAP_CENTER);
-    resetFilters();
-  });
+  setOnFormSubmit(resetOnFail);
+  setOnFormReset(resetOnFail);
 };
 
 turnFormOff();
