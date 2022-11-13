@@ -1,3 +1,6 @@
+const MESSAGE_EVENTS = ['click', 'keydown'];
+const SEND_URL = 'https://27.javascript.pages.academy/keksobooking';
+
 const advertForm = document.querySelector('.ad-form');
 const advertFormFields = advertForm.querySelectorAll('fieldset');
 const roomNumberField = advertForm.querySelector('#room_number');
@@ -154,6 +157,7 @@ const resetForm = () => {
   });
   priceField.placeholder = houseTypeToPrice[houseTypeField.value];
   pristine.reset();
+  priceSlider.noUiSlider.reset();
 };
 
 
@@ -161,71 +165,54 @@ const submitButton = advertForm.querySelector('.ad-form__submit');
 const successMessage = document.querySelector('#success').content.querySelector('.success');
 const errorMessage = document.querySelector('#error').content.querySelector('.error');
 
-const onSuccessWindowClick = () => {
-  document.body.removeChild(successMessage);
-  window.removeEventListener('click', onSuccessWindowClick);
-  window.removeEventListener('keydown', onSuccessWindowKeydown);
+
+const setResultMessage = (message) => {
+  const onWindowEvent = (evt) => {
+    if (evt.key && evt.key !== 'Escape') {
+      return;
+    }
+    document.body.removeChild(message);
+    MESSAGE_EVENTS.forEach((eventName) => window.removeEventListener(eventName, onWindowEvent));
+  };
+
+  document.body.appendChild(message);
+  MESSAGE_EVENTS.forEach((eventName) => window.addEventListener(eventName, onWindowEvent));
 };
 
-function onSuccessWindowKeydown(evt) {
-  if (evt.key === 'Escape') {
-    document.body.removeChild(successMessage);
-    window.removeEventListener('click', onSuccessWindowClick);
-    window.removeEventListener('keydown', onSuccessWindowKeydown);
+
+let onFormSubmitCallback;
+const onFormSubmit = (evt) => {
+  evt.preventDefault();
+  const isValid = pristine.validate();
+  if (isValid) {
+    submitButton.disabled = true;
+    const formData = new FormData(evt.target);
+    fetch(SEND_URL,
+      {
+        method: 'POST',
+        body: formData
+      })
+      .then((response) => {
+        if (response.ok) {
+          setResultMessage(successMessage);
+          resetForm();
+          onFormSubmitCallback();
+        } else {
+          setResultMessage(errorMessage);
+        }
+      })
+      .catch(() => {
+        setResultMessage(errorMessage);
+      })
+      .finally(() => {
+        submitButton.disabled = false;
+      });
   }
-}
-
-const onErrorWindowClick = () => {
-  document.body.removeChild(errorMessage);
-  window.removeEventListener('click', onErrorWindowClick);
-  window.removeEventListener('keydown', onErrorWindowKeydown);
-};
-
-function onErrorWindowKeydown(evt) {
-  if (evt.key === 'Escape') {
-    document.body.removeChild(errorMessage);
-    window.removeEventListener('click', onErrorWindowClick);
-    window.removeEventListener('keydown', onErrorWindowKeydown);
-  }
-}
-
-const catchFormError = () => {
-  document.body.appendChild(errorMessage);
-  window.addEventListener('click', onErrorWindowClick);
-  window.addEventListener('keydown', onErrorWindowKeydown);
 };
 
 const setOnFormSubmit = (callback) => {
-  advertForm.addEventListener('submit', (evt) => {
-    evt.preventDefault();
-    const isValid = pristine.validate();
-    if (isValid) {
-      submitButton.disabled = true;
-      const formData = new FormData(evt.target);
-      fetch('https://27.javascript.pages.academy/keksobooking',
-        {
-          method: 'POST',
-          body: formData
-        })
-        .then((response) => {
-          if (response.ok) {
-            document.body.appendChild(successMessage);
-            window.addEventListener('click', onSuccessWindowClick);
-            window.addEventListener('keydown', onSuccessWindowKeydown);
-            resetForm();
-            callback();
-          } else {
-            catchFormError();
-          }
-        })
-        .catch(() => {
-          catchFormError();
-        })
-        .finally(() => {
-          submitButton.disabled = false;
-        });
-    }
-  });
+  onFormSubmitCallback = callback;
+  advertForm.addEventListener('submit', onFormSubmit);
 };
 
 const setOnFormReset = (callback) => {
@@ -236,4 +223,4 @@ const setOnFormReset = (callback) => {
   });
 };
 
-export { turnFormOn, turnFormOff, setAddress, setOnFormReset, setOnFormSubmit, catchFormError };
+export { turnFormOn, turnFormOff, setAddress, setOnFormReset, setOnFormSubmit, setResultMessage };
