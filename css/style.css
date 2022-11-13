@@ -998,6 +998,10 @@ fieldset {
   background-image: url("../img/muffin-red.svg");
 }
 
+.loading-error__message::before {
+  background-image: none;
+}
+
 .error__button {
   padding: 10px;
 

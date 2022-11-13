@@ -12,7 +12,6 @@ const housingType = mapFiltersContainer.querySelector('#housing-type');
 const housingPrice = mapFiltersContainer.querySelector('#housing-price');
 const housingRooms = mapFiltersContainer.querySelector('#housing-rooms');
 const housingGuests = mapFiltersContainer.querySelector('#housing-guests');
-const housingFeatures = mapFiltersContainer.querySelector('#housing-features');
 
 const turnFiltersOff = () => {
   mapFiltersContainer.classList.add('map__filters--disabled');
@@ -39,24 +38,13 @@ const checkPrice = (offer) => {
   }
   const lowerLimit = priceValueToNumbers[housingPrice.value][0];
   const upperLimit = priceValueToNumbers[housingPrice.value][1];
-  return offer.price >= lowerLimit && offer.price < upperLimit;
+  return offer.price >= lowerLimit && offer.price <= upperLimit;
 };
 
-const checkFeatures = (advertFeatures) => {
-  const checkedFeatures = housingFeatures.querySelectorAll(':checked');
-  if (checkedFeatures.length) {
-    if (advertFeatures.length) {
-      return Array.from(checkedFeatures).every((feature) => advertFeatures.includes(feature.value));
-    }
-    return false;
-  }
-  return true;
-};
-
-const checkFilters = (advert) => {
+const checkFilters = (advert, checkedFeatures) => {
   const { offer, } = advert;
-  return checkType(offer) && checkRooms(offer) && checkGuests(offer)
-    && checkPrice(offer) && checkFeatures(offer.features);
+  return checkType(offer) && checkRooms(offer) && checkGuests(offer) && checkPrice(offer)
+    && checkedFeatures.every((feature) => offer.features?.includes(feature.value));
 };
 
 const setOnFiltersChange = (callback) => {

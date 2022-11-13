@@ -27,11 +27,14 @@ const mainMarker = L.marker(
   }
 );
 
+const housingFeatures = document.querySelector('#housing-features');
+
 const setAdvertMarkers = (adverts, checkFilters, createPopup) => {
   markerGroup.clearLayers();
+  const checkedFeatures = Array.from(housingFeatures.querySelectorAll(':checked'));
   let count = 1;
   for (const advert of adverts) {
-    if (checkFilters(advert)) {
+    if (checkFilters(advert, checkedFeatures)) {
       const marker = L.marker(
         {
           lat: advert.location.lat,
@@ -41,7 +44,6 @@ const setAdvertMarkers = (adverts, checkFilters, createPopup) => {
           icon: ADVERT_PIN_ICON,
         }
       );
-
       marker.addTo(markerGroup).bindPopup(createPopup(advert));
 
       if (count === MARKERS_COUNT) {
