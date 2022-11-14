@@ -168,17 +168,15 @@ const errorMessage = document.querySelector('#error').content.querySelector('.er
 
 const setResultMessage = (message) => {
   const onWindowEvent = (evt) => {
-    if (evt.key && evt.key !== 'Escape') {
-      return;
+    if (evt.type === 'click' || evt.key === 'Escape') {
+      document.body.removeChild(message);
+      MESSAGE_EVENTS.forEach((eventName) => window.removeEventListener(eventName, onWindowEvent));
     }
-    document.body.removeChild(message);
-    MESSAGE_EVENTS.forEach((eventName) => window.removeEventListener(eventName, onWindowEvent));
   };
 
   document.body.appendChild(message);
   MESSAGE_EVENTS.forEach((eventName) => window.addEventListener(eventName, onWindowEvent));
 };
-
 
 let onFormSubmitCallback;
 const onFormSubmit = (evt) => {
