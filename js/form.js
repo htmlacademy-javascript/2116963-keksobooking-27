@@ -1,5 +1,6 @@
 const MESSAGE_EVENTS = ['click', 'keydown'];
 const SEND_URL = 'https://27.javascript.pages.academy/keksobooking';
+const FILE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
 
 const advertForm = document.querySelector('.ad-form');
 const advertFormFields = advertForm.querySelectorAll('fieldset');
@@ -10,6 +11,13 @@ const priceField = advertForm.querySelector('#price');
 const timeInField = advertForm.querySelector('#timein');
 const timeOutField = advertForm.querySelector('#timeout');
 const address = advertForm.querySelector('#address');
+
+const avatarInput = advertForm.querySelector('#avatar');
+const avatarPreview = advertForm.querySelector('.ad-form-header__preview');
+const avatarBasicImage = avatarPreview.querySelector('img');
+
+const housePhotoInput = advertForm.querySelector('#images');
+const housePhotoPreview = advertForm.querySelector('.ad-form__photo');
 
 const priceSlider = advertForm.querySelector('.ad-form__slider');
 
@@ -133,6 +141,24 @@ const onTimeChange = (evt) => {
   }
 };
 
+const onPhotoChange = (photoInput, preview) => () => {
+  const file = photoInput.files[0];
+  const fileName = file.name.toLowerCase();
+  const matches = FILE_TYPES.some((item) => fileName.endsWith(item));
+  if (matches) {
+    if (photoInput === avatarInput) {
+      avatarBasicImage.style.visibility = 'hidden';
+    }
+    preview.style.backgroundImage = `url(${URL.createObjectURL(file)})`;
+  }
+};
+
+const resetPhotoPreviews = () => {
+  avatarPreview.style.backgroundImage = 'none';
+  housePhotoPreview.style.backgroundImage = 'none';
+  avatarBasicImage.style.visibility = 'visible';
+};
+
 roomNumberField.addEventListener('change', onRoomNumberChange);
 houseTypeField.addEventListener('change', onTypeChange);
 
@@ -141,10 +167,14 @@ priceField.addEventListener('input', onPriceInput);
 
 advertForm.querySelector('.ad-form__element--time').addEventListener('change', onTimeChange);
 
+avatarInput.addEventListener('change', onPhotoChange(avatarInput, avatarPreview));
+housePhotoInput.addEventListener('change', onPhotoChange(housePhotoInput, housePhotoPreview));
+
 const inputItems = advertForm.querySelectorAll('input, textarea');
 const selectionItems = advertForm.querySelectorAll('select');
 
 const resetForm = () => {
+  resetPhotoPreviews();
   inputItems.forEach((item) => {
     if (item.type === 'checkbox') {
       item.checked = false;
@@ -159,7 +189,6 @@ const resetForm = () => {
   pristine.reset();
   priceSlider.noUiSlider.reset();
 };
-
 
 const submitButton = advertForm.querySelector('.ad-form__submit');
 const successMessage = document.querySelector('#success').content.querySelector('.success');
