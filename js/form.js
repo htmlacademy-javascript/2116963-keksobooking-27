@@ -207,8 +207,7 @@ const setResultMessage = (message) => {
   MESSAGE_EVENTS.forEach((eventName) => window.addEventListener(eventName, onWindowEvent));
 };
 
-let onFormSubmitCallback;
-const onFormSubmit = (evt) => {
+const onFormSubmit = (callback) => (evt) => {
   evt.preventDefault();
   const isValid = pristine.validate();
   if (isValid) {
@@ -223,7 +222,7 @@ const onFormSubmit = (evt) => {
         if (response.ok) {
           setResultMessage(successMessage);
           resetForm();
-          onFormSubmitCallback();
+          callback();
         } else {
           setResultMessage(errorMessage);
         }
@@ -238,8 +237,7 @@ const onFormSubmit = (evt) => {
 };
 
 const setOnFormSubmit = (callback) => {
-  onFormSubmitCallback = callback;
-  advertForm.addEventListener('submit', onFormSubmit);
+  advertForm.addEventListener('submit', onFormSubmit(callback));
 };
 
 const setOnFormReset = (callback) => {
