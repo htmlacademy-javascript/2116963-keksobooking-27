@@ -25,7 +25,7 @@ const getData = (onSuccess, onFail) => {
     });
 };
 
-const debounceAdvertMarkers = (adverts) => debounce(() => setAdvertMarkers(adverts, checkFilters, createPopup), RERENDER_DELAY);
+const debounceAdvertMarkers = debounce(setAdvertMarkers, RERENDER_DELAY);
 
 const resetOnSuccess = (adverts) => {
   resetMap(MAP_CENTER);
@@ -43,7 +43,7 @@ const setFormOnSuccess = (adverts) => {
   setAdvertMarkers(adverts, checkFilters, createPopup);
   setOnFormSubmit(() => resetOnSuccess(adverts));
   setOnFormReset(() => resetOnSuccess(adverts));
-  setOnFiltersChange(debounceAdvertMarkers(adverts));
+  setOnFiltersChange(() => debounceAdvertMarkers(adverts, checkFilters, createPopup));
 };
 
 const setFormOnFail = () => {
