@@ -1,5 +1,5 @@
-const MESSAGE_EVENTS = ['click', 'keydown'];
 const SEND_URL = 'https://27.javascript.pages.academy/keksobooking';
+const FILE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
 
 const advertForm = document.querySelector('.ad-form');
 const advertFormFields = advertForm.querySelectorAll('fieldset');
@@ -10,6 +10,13 @@ const priceField = advertForm.querySelector('#price');
 const timeInField = advertForm.querySelector('#timein');
 const timeOutField = advertForm.querySelector('#timeout');
 const address = advertForm.querySelector('#address');
+
+const avatarInput = advertForm.querySelector('#avatar');
+const avatarPreview = advertForm.querySelector('.ad-form-header__preview');
+const avatarBasicImage = avatarPreview.querySelector('img');
+
+const housePhotoInput = advertForm.querySelector('#images');
+const housePhotoPreview = advertForm.querySelector('.ad-form__photo');
 
 const priceSlider = advertForm.querySelector('.ad-form__slider');
 
@@ -133,6 +140,32 @@ const onTimeChange = (evt) => {
   }
 };
 
+const resetPhotoPreview = (preview) => {
+  URL.revokeObjectURL(preview.dataset.url);
+  delete preview.dataset.url;
+  preview.style.backgroundImage = 'none';
+  if (preview === avatarPreview) {
+    avatarBasicImage.style.visibility = 'visible';
+  }
+};
+
+const createOnPhotoChange = (photoInput, preview) => () => {
+  if (!photoInput.value) {
+    return resetPhotoPreview(preview);
+  }
+  const file = photoInput.files[0];
+  const fileName = file.name.toLowerCase();
+  const matches = FILE_TYPES.some((item) => fileName.endsWith(item));
+  if (matches) {
+    if (photoInput === avatarInput) {
+      avatarBasicImage.style.visibility = 'hidden';
+    }
+    const photoUrl = URL.createObjectURL(file);
+    preview.dataset.url = photoUrl;
+    preview.style.backgroundImage = `url(${photoUrl})`;
+  }
+};
+
 roomNumberField.addEventListener('change', onRoomNumberChange);
 houseTypeField.addEventListener('change', onTypeChange);
 
@@ -141,10 +174,15 @@ priceField.addEventListener('input', onPriceInput);
 
 advertForm.querySelector('.ad-form__element--time').addEventListener('change', onTimeChange);
 
+avatarInput.addEventListener('input', createOnPhotoChange(avatarInput, avatarPreview));
+housePhotoInput.addEventListener('change', createOnPhotoChange(housePhotoInput, housePhotoPreview));
+
 const inputItems = advertForm.querySelectorAll('input, textarea');
 const selectionItems = advertForm.querySelectorAll('select');
 
 const resetForm = () => {
+  resetPhotoPreview(avatarPreview);
+  resetPhotoPreview(housePhotoPreview);
   inputItems.forEach((item) => {
     if (item.type === 'checkbox') {
       item.checked = false;
@@ -160,26 +198,11 @@ const resetForm = () => {
   priceSlider.noUiSlider.reset();
 };
 
-
 const submitButton = advertForm.querySelector('.ad-form__submit');
 const successMessage = document.querySelector('#success').content.querySelector('.success');
 const errorMessage = document.querySelector('#error').content.querySelector('.error');
 
-
-const setResultMessage = (message) => {
-  const onWindowEvent = (evt) => {
-    if (evt.type === 'click' || evt.key === 'Escape') {
-      document.body.removeChild(message);
-      MESSAGE_EVENTS.forEach((eventName) => window.removeEventListener(eventName, onWindowEvent));
-    }
-  };
-
-  document.body.appendChild(message);
-  MESSAGE_EVENTS.forEach((eventName) => window.addEventListener(eventName, onWindowEvent));
-};
-
-let onFormSubmitCallback;
-const onFormSubmit = (evt) => {
+const createOnFormSubmit = (callback, setResultMessage) => (evt) => {
   evt.preventDefault();
   const isValid = pristine.validate();
   if (isValid) {
@@ -194,7 +217,7 @@ const onFormSubmit = (evt) => {
         if (response.ok) {
           setResultMessage(successMessage);
           resetForm();
-          onFormSubmitCallback();
+          callback();
         } else {
           setResultMessage(errorMessage);
         }
@@ -208,9 +231,8 @@ const onFormSubmit = (evt) => {
   }
 };
 
-const setOnFormSubmit = (callback) => {
-  onFormSubmitCallback = callback;
-  advertForm.addEventListener('submit', onFormSubmit);
+const setOnFormSubmit = (callback, setResultMessage) => {
+  advertForm.addEventListener('submit', createOnFormSubmit(callback, setResultMessage));
 };
 
 const setOnFormReset = (callback) => {
@@ -221,4 +243,4 @@ const setOnFormReset = (callback) => {
   });
 };
 
-export { turnFormOn, turnFormOff, setAddress, setOnFormReset, setOnFormSubmit, setResultMessage };
+export { turnFormOn, turnFormOff, setAddress, setOnFormReset, setOnFormSubmit };

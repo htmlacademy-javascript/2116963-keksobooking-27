@@ -1,7 +1,8 @@
 import { createPopup } from './popup.js';
-import { turnFormOn, turnFormOff, setAddress, setOnFormReset, setOnFormSubmit, setResultMessage } from './form.js';
+import { turnFormOn, turnFormOff, setAddress, setOnFormReset, setOnFormSubmit } from './form.js';
 import { turnFiltersOn, turnFiltersOff, checkFilters, setOnFiltersChange, resetFilters } from './map-filters.js';
 import { initMap, setOnMapLoad, setAdvertMarkers, setOnMainMarkerMove, resetMap } from './map.js';
+import { setResultMessage } from './messages.js';
 import { debounce } from './utils.js';
 
 const MAP_CENTER = {
@@ -25,7 +26,7 @@ const getData = (onSuccess, onFail) => {
     });
 };
 
-const debounceAdvertMarkers = (adverts) => debounce(() => setAdvertMarkers(adverts, checkFilters, createPopup), RERENDER_DELAY);
+const debounceAdvertMarkers = debounce(setAdvertMarkers, RERENDER_DELAY);
 
 const resetOnSuccess = (adverts) => {
   resetMap(MAP_CENTER);
@@ -41,13 +42,13 @@ const resetOnFail = () => {
 const setFormOnSuccess = (adverts) => {
   turnFiltersOn();
   setAdvertMarkers(adverts, checkFilters, createPopup);
-  setOnFormSubmit(() => resetOnSuccess(adverts));
+  setOnFormSubmit(() => resetOnSuccess(adverts), setResultMessage);
   setOnFormReset(() => resetOnSuccess(adverts));
-  setOnFiltersChange(debounceAdvertMarkers(adverts));
+  setOnFiltersChange(() => debounceAdvertMarkers(adverts, checkFilters, createPopup));
 };
 
 const setFormOnFail = () => {
-  setOnFormSubmit(resetOnFail);
+  setOnFormSubmit(resetOnFail, setResultMessage);
   setOnFormReset(resetOnFail);
 };
 
