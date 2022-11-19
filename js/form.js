@@ -1,5 +1,6 @@
 const SEND_URL = 'https://27.javascript.pages.academy/keksobooking';
 const FILE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
+const ROOM_NUMBER_NOT_FOR_GUESTS = '100';
 
 const advertForm = document.querySelector('.ad-form');
 const advertFormFields = advertForm.querySelectorAll('fieldset');
@@ -102,7 +103,7 @@ const validatePrice = (value) => +value >= houseTypeToPrice[houseTypeField.value
 const capacityOptionZero = capacityField.querySelector('[value="0"]');
 
 const getCapacityErrorMessage = () => {
-  if (roomNumberField.value === '100') {
+  if (roomNumberField.value === ROOM_NUMBER_NOT_FOR_GUESTS) {
     return capacityOptionZero.textContent;
   }
   return `Количество гостей: ${roomsToCapacity[roomNumberField.value].join(', ')}`;
